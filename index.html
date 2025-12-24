@@ -1,40 +1,354 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dress Price Comparison</title>
-    <style>
-        body { font-family: Arial; padding: 20px; }
-        .product { border: 1px solid #ccc; padding: 10px; margin: 10px; width: 200px; display: inline-block; }
-        img { width: 100%; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dress Price Comparison</title>
+  <meta name="description" content="Compare dress prices across websites with filters, search, and direct links." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg:#0b0f1a;
+      --card:#121826;
+      --muted:#94a3b8;
+      --text:#e5e7eb;
+      --primary:#ff3e7f;
+      --primary-2:#ff8ab0;
+      --accent:#22d3ee;
+      --success:#10b981;
+      --warning:#f59e0b;
+      --shadow:0 10px 25px rgba(0,0,0,0.35);
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Inter',system-ui,-apple-system,Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at -10% 20%, rgba(255,62,127,0.15), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(34,211,238,0.15), transparent 60%),
+        linear-gradient(180deg, #0b0f1a 0%, #0b0f1a 100%);
+      color:var(--text);
+    }
+
+    /* Header */
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(12,15,24,0.55);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:20px 24px}
+    .brand{
+      display:flex; align-items:center; gap:12px; margin-bottom:14px;
+    }
+    .logo{
+      width:38px; height:38px; border-radius:12px;
+      background: conic-gradient(from 180deg, var(--primary), var(--accent), var(--primary));
+      box-shadow: var(--shadow);
+    }
+    .brand h1{font-size:1.25rem; margin:0; font-weight:700; letter-spacing:0.2px}
+    .brand p{margin:2px 0 0; color:var(--muted); font-size:0.9rem}
+
+    /* Controls */
+    .controls{
+      display:grid; grid-template-columns: 1.2fr 0.9fr 0.9fr 1fr; gap:12px;
+      background: rgba(18,24,38,0.7);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      padding:12px;
+    }
+    .field{
+      display:flex; align-items:center; gap:10px;
+      background: rgba(9,13,22,0.7);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px; padding:10px 12px;
+    }
+    .label{font-size:0.75rem; color:var(--muted)}
+    input[type="text"], select, input[type="number"]{
+      width:100%;
+      background: transparent; border:none; outline:none;
+      color:var(--text); font-size:0.95rem;
+    }
+    select{cursor:pointer}
+
+    .btn{
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      color:white; font-weight:600; border:none; border-radius:12px;
+      padding:12px 14px; cursor:pointer; transition: transform .08s ease;
+      box-shadow: 0 8px 18px rgba(255,62,127,0.35);
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn:active{transform: translateY(0)}
+
+    /* Grid */
+    main{padding:26px 24px}
+    .grid{
+      display:grid; gap:18px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    @media (max-width:1024px){ .grid{grid-template-columns: repeat(3, 1fr)} }
+    @media (max-width:760px){ .grid{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width:520px){ .grid{grid-template-columns: 1fr} }
+
+    /* Cards */
+    .card{
+      background: var(--card);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover{transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.45)}
+    .media{position:relative; aspect-ratio: 4/5; overflow:hidden}
+    .img{
+      width:100%; height:100%; object-fit:cover;
+      transition: transform .7s ease;
+      background: #0e1420;
+    }
+    .card:hover .img{transform: scale(1.04)}
+    .badge{
+      position:absolute; left:10px; top:10px;
+      background: rgba(34,211,238,0.9); color:#06202a; font-weight:700;
+      padding:6px 10px; border-radius:999px; font-size:0.8rem;
+      box-shadow: 0 6px 12px rgba(34,211,238,0.35);
+    }
+    .content{padding:14px 14px 16px}
+    .title{font-size:1rem; font-weight:700; margin:0 0 6px}
+    .price{font-size:1rem; color:#f0fdf4}
+    .meta{display:flex; justify-content:space-between; align-items:center; margin-top:10px}
+    .link{
+      display:inline-flex; align-items:center; gap:8px;
+      background: #0e1726; color:#c7d2fe; border:1px solid rgba(99,102,241,0.35);
+      padding:10px 12px; border-radius:10px; text-decoration:none; font-weight:600;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .link:hover{background:#0c1421; border-color:#93c5fd}
+
+    /* Empty state */
+    .empty{
+      text-align:center; color:var(--muted);
+      border:1px dashed rgba(255,255,255,0.15);
+      border-radius:12px; padding:28px; margin-top:18px;
+    }
+
+    /* Footer */
+    footer{
+      border-top:1px solid rgba(255,255,255,0.08);
+      background: rgba(12,15,24,0.55);
+    }
+    .foot{
+      max-width:1100px; margin:0 auto; padding:18px 24px; font-size:0.92rem; color:var(--muted);
+    }
+    .foot strong{color:#cbd5e1; font-weight:600}
+  </style>
 </head>
 <body>
-    <h1>Dress Price Comparison</h1>
-    <div id="products"></div>
+  <header>
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Dress Price Comparison</h1>
+          <p>Search, sort, filter, and jump to the best deals.</p>
+        </div>
+      </div>
 
-    <script>
-        const products = [
-            {
-                title: "Red Dress",
-                price: 2500,
-                image: "https://via.placeholder.com/200",
-                link: "https://example.com"
-            }
-        ];
+      <div class="controls" role="region" aria-label="Filters and search">
+        <div class="field">
+          <div>
+            <div class="label">Search</div>
+            <input id="searchInput" type="text" placeholder="Type a dress name..." />
+          </div>
+        </div>
 
-        const container = document.getElementById("products");
+        <div class="field">
+          <div style="width:100%">
+            <div class="label">Sort by price</div>
+            <select id="sortSelect">
+              <option value="default">Default</option>
+              <option value="low-high">Low to high</option>
+              <option value="high-low">High to low</option>
+            </select>
+          </div>
+        </div>
 
-        products.forEach(p => {
-            container.innerHTML += `
-                <div class="product">
-                    <img src="${p.image}">
-                    <h3>${p.title}</h3>
-                    <p>Price: PKR ${p.price}</p>
-                    <a href="${p.link}" target="_blank">View Product</a>
-                </div>
-            `;
-        });
-    </script>
+        <div class="field">
+          <div style="display:flex; gap:10px; width:100%">
+            <div style="flex:1">
+              <div class="label">Min PKR</div>
+              <input id="minPrice" type="number" min="0" placeholder="e.g., 1500" />
+            </div>
+            <div style="flex:1">
+              <div class="label">Max PKR</div>
+              <input id="maxPrice" type="number" min="0" placeholder="e.g., 6000" />
+            </div>
+          </div>
+        </div>
+
+        <button class="btn" id="applyBtn" title="Apply filters">Apply filters</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="gridSection">
+      <div id="grid" class="grid" aria-live="polite"></div>
+      <div id="empty" class="empty" style="display:none">No results found. Try adjusting filters or search.</div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="foot">
+      <p><strong>Disclaimer:</strong> Prices and availability can change at any time. Clicking “View product” opens the retailer’s site in a new tab. This page uses sample data; integrate APIs or your own dataset to make it live. This site may include affiliate links.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Sample products: Replace with live data or API results
+    const products = [
+      {
+        title: "Elegant Red Gown",
+        price: 4500,
+        image: "https://images.unsplash.com/photo-1542326237-94b1c5a028ef?q=80&w=800&auto=format&fit=crop",
+        link: "https://example.com/red-gown",
+        source: "Example Store"
+      },
+      {
+        title: "Casual Summer Dress",
+        price: 2200,
+        image: "https://images.unsplash.com/photo-1520975599574-e08b66d1d0e2?q=80&w=800&auto=format&fit=crop",
+        link: "https://example.com/summer-dress",
+        source: "Example Store"
+      },
+      {
+        title: "Black Party Dress",
+        price: 3800,
+        image: "https://images.unsplash.com/photo-1540573135977-15da6dea6356?q=80&w=800&auto=format&fit=crop",
+        link: "https://example.com/party-dress",
+        source: "Example Store"
+      },
+      {
+        title: "Floral Maxi Dress",
+        price: 3000,
+        image: "https://images.unsplash.com/photo-1503342452485-86a6c8aee79a?q=80&w=800&auto=format&fit=crop",
+        link: "https://example.com/maxi-dress",
+        source: "Example Store"
+      },
+      {
+        title: "White Wedding Dress",
+        price: 9500,
+        image: "https://images.unsplash.com/photo-1520975860151-9062323b0940?q=80&w=800&auto=format&fit=crop",
+        link: "https://example.com/wedding-dress",
+        source: "Bridal Boutique"
+      },
+      {
+        title: "Denim Shirt Dress",
+        price: 2700,
+        image: "https://images.unsplash.com/photo-1516826951419-3b1d94a4634a?q=80&w=800&auto=format&fit=crop",
+        link: "https://example.com/denim-dress",
+        source: "Example Store"
+      },
+      {
+        title: "Silk Evening Dress",
+        price: 7800,
+        image: "https://images.unsplash.com/photo-1520975611485-6d12f0b1d978?q=80&w=800&auto=format&fit=crop",
+        link: "https://example.com/silk-evening",
+        source: "Designer Hub"
+      },
+      {
+        title: "Printed A-Line Dress",
+        price: 1900,
+        image: "https://images.unsplash.com/photo-1520975662410-829e74d0a2d7?q=80&w=800&auto=format&fit=crop",
+        link: "https://example.com/a-line",
+        source: "Example Store"
+      }
+    ];
+
+    // State
+    let current = [...products];
+
+    // Elements
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const minPrice = document.getElementById('minPrice');
+    const maxPrice = document.getElementById('maxPrice');
+    const applyBtn = document.getElementById('applyBtn');
+
+    // Render
+    function render(list){
+      grid.innerHTML = '';
+      if(!list.length){
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      list.forEach(p => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="media">
+            <img class="img" src="${p.image}" alt="${p.title}">
+            <div class="badge">PKR ${p.price.toLocaleString()}</div>
+          </div>
+          <div class="content">
+            <h3 class="title">${p.title}</h3>
+            <div class="meta">
+              <div class="price">From ${p.source}</div>
+              <a class="link" href="${p.link}" target="_blank" rel="noopener noreferrer" aria-label="Open product on retailer site">
+                View product
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 17L17 7" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M9 7H17V15" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Filters
+    function applyFilters(){
+      const q = (searchInput.value || '').trim().toLowerCase();
+      const min = parseFloat(minPrice.value);
+      const max = parseFloat(maxPrice.value);
+
+      let list = products.filter(p => {
+        const matchesText = !q || p.title.toLowerCase().includes(q);
+        const matchesMin = isNaN(min) ? true : p.price >= min;
+        const matchesMax = isNaN(max) ? true : p.price <= max;
+        return matchesText && matchesMin && matchesMax;
+      });
+
+      const sortVal = sortSelect.value;
+      if(sortVal === 'low-high'){ list.sort((a,b)=> a.price - b.price); }
+      else if(sortVal === 'high-low'){ list.sort((a,b)=> b.price - a.price); }
+
+      current = list;
+      render(current);
+    }
+
+    // Events
+    searchInput.addEventListener('input', applyFilters);
+    sortSelect.addEventListener('change', applyFilters);
+    applyBtn.addEventListener('click', applyFilters);
+    minPrice.addEventListener('keydown', e => { if(e.key === 'Enter') applyFilters(); });
+    maxPrice.addEventListener('keydown', e => { if(e.key === 'Enter') applyFilters(); });
+
+    // Init
+    render(current);
+  </script>
 </body>
 </html>
 
