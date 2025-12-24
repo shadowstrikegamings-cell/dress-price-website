@@ -1,1 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dress Price Comparison</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .product { border: 1px solid #ccc; padding: 10px; margin: 10px; width: 200px; display: inline-block; }
+        img { width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>Dress Price Comparison</h1>
+    <div id="products"></div>
+
+    <script>
+        const products = [
+            {
+                title: "Red Dress",
+                price: 2500,
+                image: "https://via.placeholder.com/200",
+                link: "https://example.com"
+            }
+        ];
+
+        const container = document.getElementById("products");
+
+        products.forEach(p => {
+            container.innerHTML += `
+                <div class="product">
+                    <img src="${p.image}">
+                    <h3>${p.title}</h3>
+                    <p>Price: PKR ${p.price}</p>
+                    <a href="${p.link}" target="_blank">View Product</a>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>
 
